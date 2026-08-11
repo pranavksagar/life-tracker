@@ -1,54 +1,54 @@
-import { useEffect, useRef, useState } from 'react'
-import { Plus, ListTodo } from 'lucide-react'
-import type { TaskStatus } from '@/data'
-import { useTasks } from '@/hooks/useTasks'
-import { PageHeader } from '@/components/common/PageHeader'
+import { useEffect, useRef, useState } from "react";
+import { Plus, ListTodo } from "lucide-react";
+import type { TaskStatus } from "@/data";
+import { useTasks } from "@/hooks/useTasks";
+import { PageHeader } from "@/components/common/PageHeader";
 import {
   EmptyState,
   ErrorState,
   ListSkeleton,
-} from '@/components/common/states'
-import { AreaSelect } from '@/components/common/AreaSelect'
-import { TaskList } from '@/components/tasks/TaskList'
-import { QuickAddTask } from '@/components/tasks/QuickAddTask'
-import { TaskDialog } from '@/components/tasks/TaskDialog'
-import { pendoTrack } from '@/lib/pendo'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+} from "@/components/common/states";
+import { AreaSelect } from "@/components/common/AreaSelect";
+import { TaskList } from "@/components/tasks/TaskList";
+import { QuickAddTask } from "@/components/tasks/QuickAddTask";
+import { TaskDialog } from "@/components/tasks/TaskDialog";
+import { pendoTrack } from "@/lib/pendo";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-type StatusFilter = 'all' | TaskStatus
+type StatusFilter = "all" | TaskStatus;
 
 export function TasksPage() {
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
-  const [areaId, setAreaId] = useState<string | null>(null)
-  const [search, setSearch] = useState('')
-  const [creating, setCreating] = useState(false)
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [areaId, setAreaId] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [creating, setCreating] = useState(false);
 
   const { data, isLoading, isError, error, refetch } = useTasks({
-    status: statusFilter === 'all' ? undefined : statusFilter,
+    status: statusFilter === "all" ? undefined : statusFilter,
     areaId: areaId ?? undefined,
     search: search.trim() || undefined,
-  })
+  });
 
-  const resultsRef = useRef(data)
-  resultsRef.current = data
+  const resultsRef = useRef(data);
+  resultsRef.current = data;
 
   useEffect(() => {
-    const trimmed = search.trim()
-    if (!trimmed) return
+    const trimmed = search.trim();
+    if (!trimmed) return;
 
     const timer = setTimeout(() => {
-      pendoTrack('task_searched', {
+      pendoTrack("task_searched", {
         query: trimmed,
         status_filter: statusFilter,
-        area_filter: areaId ?? 'all',
+        area_filter: areaId ?? "all",
         results_count: resultsRef.current?.length ?? 0,
-      })
-    }, 500)
+      });
+    }, 500);
 
-    return () => clearTimeout(timer)
-  }, [search, statusFilter, areaId])
+    return () => clearTimeout(timer);
+  }, [search, statusFilter, areaId]);
 
   return (
     <div>
@@ -109,5 +109,5 @@ export function TasksPage() {
 
       <TaskDialog open={creating} onOpenChange={setCreating} />
     </div>
-  )
+  );
 }

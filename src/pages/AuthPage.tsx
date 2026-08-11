@@ -1,58 +1,58 @@
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import { Loader2 } from 'lucide-react'
-import { toast } from 'sonner'
-import { useAuth } from '@/hooks/useAuth'
-import { pendoTrack } from '@/lib/pendo'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
+import { pendoTrack } from "@/lib/pendo";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
+} from "@/components/ui/card";
 
 const schema = z.object({
-  email: z.string().email('Enter a valid email'),
-  password: z.string().min(6, 'At least 6 characters'),
-})
-type FormValues = z.infer<typeof schema>
+  email: z.string().email("Enter a valid email"),
+  password: z.string().min(6, "At least 6 characters"),
+});
+type FormValues = z.infer<typeof schema>;
 
-type Mode = 'signin' | 'signup'
+type Mode = "signin" | "signup";
 
 export function AuthPage() {
-  const { signIn, signUp } = useAuth()
-  const [mode, setMode] = useState<Mode>('signin')
+  const { signIn, signUp } = useAuth();
+  const [mode, setMode] = useState<Mode>("signin");
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<FormValues>({ resolver: zodResolver(schema) })
+  } = useForm<FormValues>({ resolver: zodResolver(schema) });
 
   async function onSubmit(values: FormValues) {
     try {
-      if (mode === 'signin') {
-        await signIn(values)
-        pendoTrack('user_signed_in')
+      if (mode === "signin") {
+        await signIn(values);
+        pendoTrack("user_signed_in");
       } else {
-        const { needsConfirmation } = await signUp(values)
-        pendoTrack('user_signed_up', { needs_confirmation: needsConfirmation })
+        const { needsConfirmation } = await signUp(values);
+        pendoTrack("user_signed_up", { needs_confirmation: needsConfirmation });
         if (needsConfirmation) {
           toast.success(
-            'Check your email to confirm your account, then sign in.',
-          )
-          setMode('signin')
+            "Check your email to confirm your account, then sign in.",
+          );
+          setMode("signin");
         } else {
-          toast.success('Welcome! Setting things up…')
+          toast.success("Welcome! Setting things up…");
         }
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Authentication failed')
+      toast.error(err instanceof Error ? err.message : "Authentication failed");
     }
   }
 
@@ -70,12 +70,12 @@ export function AuthPage() {
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>
-            {mode === 'signin' ? 'Welcome back' : 'Create your account'}
+            {mode === "signin" ? "Welcome back" : "Create your account"}
           </CardTitle>
           <CardDescription>
-            {mode === 'signin'
-              ? 'Sign in to your private life tracker.'
-              : 'Sign up with an email and password.'}
+            {mode === "signin"
+              ? "Sign in to your private life tracker."
+              : "Sign up with an email and password."}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -91,7 +91,7 @@ export function AuthPage() {
                 type="email"
                 autoComplete="email"
                 placeholder="you@example.com"
-                {...register('email')}
+                {...register("email")}
               />
               {errors.email && (
                 <p className="text-destructive text-xs">
@@ -105,10 +105,10 @@ export function AuthPage() {
                 id="password"
                 type="password"
                 autoComplete={
-                  mode === 'signin' ? 'current-password' : 'new-password'
+                  mode === "signin" ? "current-password" : "new-password"
                 }
                 placeholder="••••••••"
-                {...register('password')}
+                {...register("password")}
               />
               {errors.password && (
                 <p className="text-destructive text-xs">
@@ -118,24 +118,24 @@ export function AuthPage() {
             </div>
             <Button type="submit" className="w-full" disabled={isSubmitting}>
               {isSubmitting && <Loader2 className="size-4 animate-spin" />}
-              {mode === 'signin' ? 'Sign in' : 'Create account'}
+              {mode === "signin" ? "Sign in" : "Create account"}
             </Button>
           </form>
 
           <p className="text-muted-foreground mt-4 text-center text-sm">
-            {mode === 'signin'
+            {mode === "signin"
               ? "Don't have an account? "
-              : 'Already have an account? '}
+              : "Already have an account? "}
             <button
               type="button"
               className="text-primary font-medium hover:underline"
-              onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
+              onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
             >
-              {mode === 'signin' ? 'Sign up' : 'Sign in'}
+              {mode === "signin" ? "Sign up" : "Sign in"}
             </button>
           </p>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

@@ -6,7 +6,7 @@ export function pendoTrack(
   name: string,
   properties?: Record<string, unknown>,
 ): void {
-  if (typeof pendo !== 'undefined') {
-    pendo.track(name, properties)
+  if (typeof pendo !== "undefined") {
+    pendo.track(name, properties);
   }
 }

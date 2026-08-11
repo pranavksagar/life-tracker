@@ -1,51 +1,51 @@
-import { useState } from 'react'
-import { MoreVertical, Repeat } from 'lucide-react'
-import type { Goal, Habit, Task } from '@/data'
-import { goalProgress } from '@/data'
-import { useGoalMutations } from '@/hooks/useGoals'
-import { useAreaMap } from '@/hooks/useAreas'
-import { formatDate } from '@/lib/date'
-import { pendoTrack } from '@/lib/pendo'
-import { GoalDialog } from './GoalDialog'
-import { AreaDot } from '@/components/common/AreaDot'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
+import { useState } from "react";
+import { MoreVertical, Repeat } from "lucide-react";
+import type { Goal, Habit, Task } from "@/data";
+import { goalProgress } from "@/data";
+import { useGoalMutations } from "@/hooks/useGoals";
+import { useAreaMap } from "@/hooks/useAreas";
+import { formatDate } from "@/lib/date";
+import { pendoTrack } from "@/lib/pendo";
+import { GoalDialog } from "./GoalDialog";
+import { AreaDot } from "@/components/common/AreaDot";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu";
 
 const statusVariant = {
-  active: 'default',
-  completed: 'secondary',
-  dropped: 'outline',
-} as const
+  active: "default",
+  completed: "secondary",
+  dropped: "outline",
+} as const;
 
 export function GoalCard({
   goal,
   tasks,
   habits,
 }: {
-  goal: Goal
-  tasks: Task[]
-  habits: Habit[]
+  goal: Goal;
+  tasks: Task[];
+  habits: Habit[];
 }) {
-  const { update, remove } = useGoalMutations()
-  const areaMap = useAreaMap()
-  const [editing, setEditing] = useState(false)
+  const { update, remove } = useGoalMutations();
+  const areaMap = useAreaMap();
+  const [editing, setEditing] = useState(false);
 
-  const doneTasks = tasks.filter((t) => t.status === 'done').length
-  const metricProgress = goalProgress(goal)
+  const doneTasks = tasks.filter((t) => t.status === "done").length;
+  const metricProgress = goalProgress(goal);
   // Fall back to task completion when there's no measurable target.
   const fraction =
-    metricProgress ?? (tasks.length > 0 ? doneTasks / tasks.length : 0)
-  const percent = Math.round(fraction * 100)
-  const area = goal.area_id ? areaMap.get(goal.area_id) : undefined
+    metricProgress ?? (tasks.length > 0 ? doneTasks / tasks.length : 0);
+  const percent = Math.round(fraction * 100);
+  const area = goal.area_id ? areaMap.get(goal.area_id) : undefined;
 
   return (
     <Card>
@@ -55,7 +55,7 @@ export function GoalCard({
             <div className="flex items-center gap-2">
               {area && <AreaDot color={area.color} />}
               <h3 className="truncate font-semibold">{goal.title}</h3>
-              {goal.status !== 'active' && (
+              {goal.status !== "active" && (
                 <Badge
                   variant={statusVariant[goal.status]}
                   className="capitalize"
@@ -80,20 +80,20 @@ export function GoalCard({
               <DropdownMenuItem onClick={() => setEditing(true)}>
                 Edit
               </DropdownMenuItem>
-              {goal.status !== 'completed' && (
+              {goal.status !== "completed" && (
                 <DropdownMenuItem
                   onClick={() =>
                     update.mutate(
-                      { id: goal.id, patch: { status: 'completed' } },
+                      { id: goal.id, patch: { status: "completed" } },
                       {
                         onSuccess: () => {
-                          pendoTrack('goal_completed', {
+                          pendoTrack("goal_completed", {
                             goal_id: goal.id,
                             has_target_value: goal.target_value != null,
                             current_value: goal.current_value,
                             target_value: goal.target_value,
                             has_deadline: goal.deadline != null,
-                          })
+                          });
                         },
                       },
                     )
@@ -107,7 +107,7 @@ export function GoalCard({
                 className="text-destructive"
                 onClick={() => {
                   if (confirm(`Delete goal "${goal.title}"?`))
-                    remove.mutate(goal.id)
+                    remove.mutate(goal.id);
                 }}
               >
                 Delete
@@ -120,7 +120,7 @@ export function GoalCard({
           <div className="text-muted-foreground mb-1 flex items-center justify-between text-xs">
             <span>
               {goal.target_value != null
-                ? `${goal.current_value}${goal.unit ? ' ' + goal.unit : ''} / ${goal.target_value}${goal.unit ? ' ' + goal.unit : ''}`
+                ? `${goal.current_value}${goal.unit ? " " + goal.unit : ""} / ${goal.target_value}${goal.unit ? " " + goal.unit : ""}`
                 : `${doneTasks}/${tasks.length} tasks done`}
             </span>
             <span>{percent}%</span>
@@ -132,13 +132,13 @@ export function GoalCard({
           {goal.deadline && <span>Due {formatDate(goal.deadline)}</span>}
           {tasks.length > 0 && (
             <span>
-              {tasks.length} linked task{tasks.length !== 1 ? 's' : ''}
+              {tasks.length} linked task{tasks.length !== 1 ? "s" : ""}
             </span>
           )}
           {habits.length > 0 && (
             <span className="flex items-center gap-1">
               <Repeat className="size-3" />
-              {habits.length} habit{habits.length !== 1 ? 's' : ''}
+              {habits.length} habit{habits.length !== 1 ? "s" : ""}
             </span>
           )}
         </div>
@@ -157,13 +157,13 @@ export function GoalCard({
             {tasks.slice(0, 5).map((t) => (
               <li key={t.id} className="flex items-center gap-2">
                 <span className="text-muted-foreground">
-                  {t.status === 'done' ? '✓' : '○'}
+                  {t.status === "done" ? "✓" : "○"}
                 </span>
                 <span
                   className={
-                    t.status === 'done'
-                      ? 'text-muted-foreground line-through'
-                      : ''
+                    t.status === "done"
+                      ? "text-muted-foreground line-through"
+                      : ""
                   }
                 >
                   {t.title}
@@ -183,5 +183,5 @@ export function GoalCard({
         <GoalDialog open={editing} onOpenChange={setEditing} goal={goal} />
       )}
     </Card>
-  )
+  );
 }
