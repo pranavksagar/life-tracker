@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { pendoTrack } from '@/lib/pendo'
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>
@@ -10,7 +11,9 @@ interface BeforeInstallPromptEvent extends Event {
  * browsers that don't fire it (e.g. iOS Safari) — show a manual hint there.
  */
 export function useInstallPrompt() {
-  const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null)
+  const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(
+    null,
+  )
   const [installed, setInstalled] = useState(
     () => window.matchMedia('(display-mode: standalone)').matches,
   )
@@ -23,6 +26,7 @@ export function useInstallPrompt() {
     const onInstalled = () => {
       setInstalled(true)
       setDeferred(null)
+      pendoTrack('pwa_installed')
     }
     window.addEventListener('beforeinstallprompt', onPrompt)
     window.addEventListener('appinstalled', onInstalled)

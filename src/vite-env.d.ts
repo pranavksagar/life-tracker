@@ -10,3 +10,9 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv
 }
+
+interface PendoAgent {
+  track(name: string, properties?: Record<string, unknown>): void
+}
+
+declare const pendo: PendoAgent | undefined

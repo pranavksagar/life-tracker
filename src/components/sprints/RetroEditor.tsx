@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { Sprint } from '@/data'
 import { useSprintMutations } from '@/hooks/useSprints'
+import { pendoTrack } from '@/lib/pendo'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 
@@ -27,7 +28,21 @@ export function RetroEditor({ sprint }: { sprint: Sprint }) {
         <Button
           size="sm"
           disabled={!dirty || update.isPending}
-          onClick={() => update.mutate({ id: sprint.id, patch: { retro_notes: value.trim() || null } })}
+          onClick={() => {
+            const trimmed = value.trim() || null
+            update.mutate(
+              { id: sprint.id, patch: { retro_notes: trimmed } },
+              {
+                onSuccess: () => {
+                  pendoTrack('sprint_retro_saved', {
+                    sprint_id: sprint.id,
+                    sprint_status: sprint.status,
+                    retro_length: trimmed?.length ?? 0,
+                  })
+                },
+              },
+            )
+          }}
         >
           Save notes
         </Button>

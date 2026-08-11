@@ -5,6 +5,7 @@ import { goalProgress } from '@/data'
 import { useGoalMutations } from '@/hooks/useGoals'
 import { useAreaMap } from '@/hooks/useAreas'
 import { formatDate } from '@/lib/date'
+import { pendoTrack } from '@/lib/pendo'
 import { GoalDialog } from './GoalDialog'
 import { AreaDot } from '@/components/common/AreaDot'
 import { Card, CardContent } from '@/components/ui/card'
@@ -19,9 +20,21 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
-const statusVariant = { active: 'default', completed: 'secondary', dropped: 'outline' } as const
+const statusVariant = {
+  active: 'default',
+  completed: 'secondary',
+  dropped: 'outline',
+} as const
 
-export function GoalCard({ goal, tasks, habits }: { goal: Goal; tasks: Task[]; habits: Habit[] }) {
+export function GoalCard({
+  goal,
+  tasks,
+  habits,
+}: {
+  goal: Goal
+  tasks: Task[]
+  habits: Habit[]
+}) {
   const { update, remove } = useGoalMutations()
   const areaMap = useAreaMap()
   const [editing, setEditing] = useState(false)
@@ -43,13 +56,18 @@ export function GoalCard({ goal, tasks, habits }: { goal: Goal; tasks: Task[]; h
               {area && <AreaDot color={area.color} />}
               <h3 className="truncate font-semibold">{goal.title}</h3>
               {goal.status !== 'active' && (
-                <Badge variant={statusVariant[goal.status]} className="capitalize">
+                <Badge
+                  variant={statusVariant[goal.status]}
+                  className="capitalize"
+                >
                   {goal.status}
                 </Badge>
               )}
             </div>
             {goal.description && (
-              <p className="text-muted-foreground mt-0.5 text-sm">{goal.description}</p>
+              <p className="text-muted-foreground mt-0.5 text-sm">
+                {goal.description}
+              </p>
             )}
           </div>
           <DropdownMenu>
@@ -59,10 +77,27 @@ export function GoalCard({ goal, tasks, habits }: { goal: Goal; tasks: Task[]; h
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setEditing(true)}>Edit</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setEditing(true)}>
+                Edit
+              </DropdownMenuItem>
               {goal.status !== 'completed' && (
                 <DropdownMenuItem
-                  onClick={() => update.mutate({ id: goal.id, patch: { status: 'completed' } })}
+                  onClick={() =>
+                    update.mutate(
+                      { id: goal.id, patch: { status: 'completed' } },
+                      {
+                        onSuccess: () => {
+                          pendoTrack('goal_completed', {
+                            goal_id: goal.id,
+                            has_target_value: goal.target_value != null,
+                            current_value: goal.current_value,
+                            target_value: goal.target_value,
+                            has_deadline: goal.deadline != null,
+                          })
+                        },
+                      },
+                    )
+                  }
                 >
                   Mark complete
                 </DropdownMenuItem>
@@ -71,7 +106,8 @@ export function GoalCard({ goal, tasks, habits }: { goal: Goal; tasks: Task[]; h
               <DropdownMenuItem
                 className="text-destructive"
                 onClick={() => {
-                  if (confirm(`Delete goal "${goal.title}"?`)) remove.mutate(goal.id)
+                  if (confirm(`Delete goal "${goal.title}"?`))
+                    remove.mutate(goal.id)
                 }}
               >
                 Delete
@@ -94,7 +130,11 @@ export function GoalCard({ goal, tasks, habits }: { goal: Goal; tasks: Task[]; h
 
         <div className="text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 text-xs">
           {goal.deadline && <span>Due {formatDate(goal.deadline)}</span>}
-          {tasks.length > 0 && <span>{tasks.length} linked task{tasks.length !== 1 ? 's' : ''}</span>}
+          {tasks.length > 0 && (
+            <span>
+              {tasks.length} linked task{tasks.length !== 1 ? 's' : ''}
+            </span>
+          )}
           {habits.length > 0 && (
             <span className="flex items-center gap-1">
               <Repeat className="size-3" />
@@ -107,26 +147,41 @@ export function GoalCard({ goal, tasks, habits }: { goal: Goal; tasks: Task[]; h
           <ul className="space-y-1 border-t pt-2 text-sm">
             {habits.map((h) => (
               <li key={h.id} className="flex items-center gap-2">
-                <span className="size-2 rounded-full" style={{ backgroundColor: h.color }} />
+                <span
+                  className="size-2 rounded-full"
+                  style={{ backgroundColor: h.color }}
+                />
                 <span className="text-muted-foreground">{h.name}</span>
               </li>
             ))}
             {tasks.slice(0, 5).map((t) => (
               <li key={t.id} className="flex items-center gap-2">
-                <span className="text-muted-foreground">{t.status === 'done' ? '✓' : '○'}</span>
-                <span className={t.status === 'done' ? 'text-muted-foreground line-through' : ''}>
+                <span className="text-muted-foreground">
+                  {t.status === 'done' ? '✓' : '○'}
+                </span>
+                <span
+                  className={
+                    t.status === 'done'
+                      ? 'text-muted-foreground line-through'
+                      : ''
+                  }
+                >
                   {t.title}
                 </span>
               </li>
             ))}
             {tasks.length > 5 && (
-              <li className="text-muted-foreground text-xs">+{tasks.length - 5} more</li>
+              <li className="text-muted-foreground text-xs">
+                +{tasks.length - 5} more
+              </li>
             )}
           </ul>
         )}
       </CardContent>
 
-      {editing && <GoalDialog open={editing} onOpenChange={setEditing} goal={goal} />}
+      {editing && (
+        <GoalDialog open={editing} onOpenChange={setEditing} goal={goal} />
+      )}
     </Card>
   )
 }

@@ -1,13 +1,18 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Plus, ListTodo } from 'lucide-react'
 import type { TaskStatus } from '@/data'
 import { useTasks } from '@/hooks/useTasks'
 import { PageHeader } from '@/components/common/PageHeader'
-import { EmptyState, ErrorState, ListSkeleton } from '@/components/common/states'
+import {
+  EmptyState,
+  ErrorState,
+  ListSkeleton,
+} from '@/components/common/states'
 import { AreaSelect } from '@/components/common/AreaSelect'
 import { TaskList } from '@/components/tasks/TaskList'
 import { QuickAddTask } from '@/components/tasks/QuickAddTask'
 import { TaskDialog } from '@/components/tasks/TaskDialog'
+import { pendoTrack } from '@/lib/pendo'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -26,6 +31,25 @@ export function TasksPage() {
     search: search.trim() || undefined,
   })
 
+  const resultsRef = useRef(data)
+  resultsRef.current = data
+
+  useEffect(() => {
+    const trimmed = search.trim()
+    if (!trimmed) return
+
+    const timer = setTimeout(() => {
+      pendoTrack('task_searched', {
+        query: trimmed,
+        status_filter: statusFilter,
+        area_filter: areaId ?? 'all',
+        results_count: resultsRef.current?.length ?? 0,
+      })
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [search, statusFilter, areaId])
+
   return (
     <div>
       <PageHeader
@@ -40,7 +64,10 @@ export function TasksPage() {
       <div className="mb-4 space-y-3">
         <QuickAddTask />
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <Tabs value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
+          <Tabs
+            value={statusFilter}
+            onValueChange={(v) => setStatusFilter(v as StatusFilter)}
+          >
             <TabsList>
               <TabsTrigger value="all">All</TabsTrigger>
               <TabsTrigger value="todo">To do</TabsTrigger>
@@ -56,7 +83,11 @@ export function TasksPage() {
               className="flex-1"
             />
             <div className="w-40">
-              <AreaSelect value={areaId} onChange={setAreaId} placeholder="All areas" />
+              <AreaSelect
+                value={areaId}
+                onChange={setAreaId}
+                placeholder="All areas"
+              />
             </div>
           </div>
         </div>
