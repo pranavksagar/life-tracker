@@ -24,9 +24,17 @@ export function useFoodMutations() {
 
   const create = useMutation({
     mutationFn: (input: NewFoodLog) => foodRepo.create(input),
-    onSuccess: () => {
+    onSuccess: (data) => {
       invalidate()
       toast.success('Meal logged')
+      pendo.track('meal_logged', {
+        meal_type: data.meal,
+        has_calories: data.calories != null,
+        has_protein: data.protein != null,
+        has_carbs: data.carbs != null,
+        has_fat: data.fat != null,
+        has_area: Boolean(data.area_id),
+      })
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : 'Could not log meal'),
   })

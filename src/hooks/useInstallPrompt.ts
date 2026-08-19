@@ -35,7 +35,8 @@ export function useInstallPrompt() {
   async function promptInstall() {
     if (!deferred) return
     await deferred.prompt()
-    await deferred.userChoice
+    const { outcome } = await deferred.userChoice
+    pendo.track('pwa_install_prompted', { outcome })
     setDeferred(null)
   }
 
