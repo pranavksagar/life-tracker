@@ -25,9 +25,15 @@ export function useHabitMutations() {
 
   const create = useMutation({
     mutationFn: (input: NewHabit) => habitsRepo.create(input),
-    onSuccess: () => {
+    onSuccess: (data) => {
       invalidateHabits()
       toast.success('Habit created')
+      pendo.track('habit_created', {
+        cadence: data.cadence,
+        target_count: data.target_count,
+        has_area: Boolean(data.area_id),
+        color: data.color,
+      })
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : 'Could not create habit'),
   })
@@ -49,11 +55,25 @@ export function useHabitMutations() {
   })
 
   const toggle = useMutation({
-    mutationFn: async ({ habitId, date, done }: { habitId: string; date: string; done: boolean }) => {
+    mutationFn: async ({
+      habitId,
+      date,
+      done,
+    }: {
+      habitId: string
+      date: string
+      done: boolean
+    }) => {
       if (done) await habitsRepo.logCompletion(habitId, date)
       else await habitsRepo.clearCompletion(habitId, date)
     },
-    onSuccess: invalidateLogs,
+    onSuccess: (_data, variables) => {
+      invalidateLogs()
+      pendo.track('habit_completion_toggled', {
+        done: variables.done,
+        date: variables.date,
+      })
+    },
     onError: (e) => toast.error(e instanceof Error ? e.message : 'Could not update log'),
   })
 

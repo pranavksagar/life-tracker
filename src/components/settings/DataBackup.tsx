@@ -23,6 +23,8 @@ export function DataBackup() {
       a.download = `life-tracker-backup-${todayISO()}.json`
       a.click()
       URL.revokeObjectURL(url)
+      const totalRecords = Object.values(backup.data).reduce((sum, arr) => sum + arr.length, 0)
+      pendo.track('data_exported', { total_records: totalRecords })
       toast.success('Backup downloaded')
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Export failed')
@@ -38,6 +40,11 @@ export function DataBackup() {
       const parsed = JSON.parse(text) as BackupFile
       await importAll(parsed)
       await queryClient.invalidateQueries()
+      const totalRecords = Object.values(parsed.data).reduce(
+        (sum, arr) => sum + (arr?.length ?? 0),
+        0,
+      )
+      pendo.track('data_imported', { total_records: totalRecords })
       toast.success('Backup imported')
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Import failed — is this a valid backup file?')
@@ -55,7 +62,11 @@ export function DataBackup() {
       </p>
       <div className="flex flex-wrap gap-2">
         <Button variant="outline" onClick={handleExport} disabled={exporting}>
-          {exporting ? <Loader2 className="size-4 animate-spin" /> : <Download className="size-4" />}
+          {exporting ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <Download className="size-4" />
+          )}
           Export data
         </Button>
         <Button variant="outline" onClick={() => fileRef.current?.click()} disabled={importing}>

@@ -31,9 +31,11 @@ export function AuthPage() {
     try {
       if (mode === 'signin') {
         await signIn(values)
+        pendo.track('user_signed_in')
         // On success the auth listener swaps in the app — nothing else to do.
       } else {
         const { needsConfirmation } = await signUp(values)
+        pendo.track('user_signed_up', { needs_confirmation: needsConfirmation })
         if (needsConfirmation) {
           toast.success('Check your email to confirm your account, then sign in.')
           setMode('signin')

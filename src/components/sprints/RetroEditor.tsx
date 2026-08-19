@@ -27,7 +27,14 @@ export function RetroEditor({ sprint }: { sprint: Sprint }) {
         <Button
           size="sm"
           disabled={!dirty || update.isPending}
-          onClick={() => update.mutate({ id: sprint.id, patch: { retro_notes: value.trim() || null } })}
+          onClick={() => {
+            const trimmed = value.trim() || null
+            update.mutate({ id: sprint.id, patch: { retro_notes: trimmed } })
+            pendo.track('sprint_retro_saved', {
+              notes_length: trimmed?.length ?? 0,
+              sprint_status: sprint.status,
+            })
+          }}
         >
           Save notes
         </Button>

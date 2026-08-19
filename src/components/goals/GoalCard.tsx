@@ -29,8 +29,7 @@ export function GoalCard({ goal, tasks, habits }: { goal: Goal; tasks: Task[]; h
   const doneTasks = tasks.filter((t) => t.status === 'done').length
   const metricProgress = goalProgress(goal)
   // Fall back to task completion when there's no measurable target.
-  const fraction =
-    metricProgress ?? (tasks.length > 0 ? doneTasks / tasks.length : 0)
+  const fraction = metricProgress ?? (tasks.length > 0 ? doneTasks / tasks.length : 0)
   const percent = Math.round(fraction * 100)
   const area = goal.area_id ? areaMap.get(goal.area_id) : undefined
 
@@ -62,7 +61,13 @@ export function GoalCard({ goal, tasks, habits }: { goal: Goal; tasks: Task[]; h
               <DropdownMenuItem onClick={() => setEditing(true)}>Edit</DropdownMenuItem>
               {goal.status !== 'completed' && (
                 <DropdownMenuItem
-                  onClick={() => update.mutate({ id: goal.id, patch: { status: 'completed' } })}
+                  onClick={() => {
+                    update.mutate({ id: goal.id, patch: { status: 'completed' } })
+                    pendo.track('goal_marked_complete', {
+                      had_target: goal.target_value != null,
+                      had_deadline: Boolean(goal.deadline),
+                    })
+                  }}
                 >
                   Mark complete
                 </DropdownMenuItem>
@@ -94,7 +99,11 @@ export function GoalCard({ goal, tasks, habits }: { goal: Goal; tasks: Task[]; h
 
         <div className="text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 text-xs">
           {goal.deadline && <span>Due {formatDate(goal.deadline)}</span>}
-          {tasks.length > 0 && <span>{tasks.length} linked task{tasks.length !== 1 ? 's' : ''}</span>}
+          {tasks.length > 0 && (
+            <span>
+              {tasks.length} linked task{tasks.length !== 1 ? 's' : ''}
+            </span>
+          )}
           {habits.length > 0 && (
             <span className="flex items-center gap-1">
               <Repeat className="size-3" />
