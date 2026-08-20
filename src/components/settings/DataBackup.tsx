@@ -20,10 +20,14 @@ export function DataBackup() {
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `life-tracker-backup-${todayISO()}.json`
+      const fileName = `life-tracker-backup-${todayISO()}.json`
+      a.download = fileName
       a.click()
       URL.revokeObjectURL(url)
       toast.success('Backup downloaded')
+      pendo.track('data_exported', {
+        file_name: fileName,
+      })
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Export failed')
     } finally {
@@ -39,6 +43,10 @@ export function DataBackup() {
       await importAll(parsed)
       await queryClient.invalidateQueries()
       toast.success('Backup imported')
+      pendo.track('data_imported', {
+        file_size_bytes: file.size,
+        file_name: file.name,
+      })
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Import failed — is this a valid backup file?')
     } finally {
@@ -55,7 +63,11 @@ export function DataBackup() {
       </p>
       <div className="flex flex-wrap gap-2">
         <Button variant="outline" onClick={handleExport} disabled={exporting}>
-          {exporting ? <Loader2 className="size-4 animate-spin" /> : <Download className="size-4" />}
+          {exporting ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <Download className="size-4" />
+          )}
           Export data
         </Button>
         <Button variant="outline" onClick={() => fileRef.current?.click()} disabled={importing}>

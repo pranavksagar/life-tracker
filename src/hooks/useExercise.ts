@@ -23,9 +23,16 @@ export function useExerciseMutations() {
 
   const create = useMutation({
     mutationFn: (input: NewExerciseLog) => exerciseRepo.create(input),
-    onSuccess: () => {
+    onSuccess: (_data, input) => {
       invalidate()
       toast.success('Workout logged')
+      pendo.track('exercise_logged', {
+        exercise_type: input.type,
+        duration_min: input.duration_min ?? 0,
+        intensity: input.intensity ?? 'medium',
+        has_calories: input.calories != null,
+        has_area: input.area_id != null,
+      })
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : 'Could not log workout'),
   })

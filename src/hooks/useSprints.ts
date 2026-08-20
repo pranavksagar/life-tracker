@@ -21,15 +21,24 @@ export function useSprintMutations() {
 
   const create = useMutation({
     mutationFn: (input: NewSprint) => sprintsRepo.create(input),
-    onSuccess: () => {
+    onSuccess: (_data, input) => {
       invalidate()
       toast.success('Sprint created')
+      const start = new Date(input.start_date)
+      const end = new Date(input.end_date)
+      pendo.track('sprint_created', {
+        duration_days: Math.round((end.getTime() - start.getTime()) / 86_400_000),
+        has_capacity: input.capacity != null,
+        capacity: input.capacity ?? null,
+        status: input.status ?? 'planning',
+      })
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : 'Could not create sprint'),
   })
 
   const update = useMutation({
-    mutationFn: ({ id, patch }: { id: string; patch: SprintPatch }) => sprintsRepo.update(id, patch),
+    mutationFn: ({ id, patch }: { id: string; patch: SprintPatch }) =>
+      sprintsRepo.update(id, patch),
     onSuccess: invalidate,
     onError: (e) => toast.error(e instanceof Error ? e.message : 'Could not update sprint'),
   })

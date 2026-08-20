@@ -3,6 +3,7 @@ import { toast } from 'sonner'
 import { habitsRepo } from '@/data'
 import type { HabitPatch, NewHabit } from '@/data'
 import { qk, qkRoots } from '@/lib/query-keys'
+import { todayISO } from '@/lib/date'
 
 export function useHabits(options?: { includeArchived?: boolean }) {
   return useQuery({
@@ -25,9 +26,15 @@ export function useHabitMutations() {
 
   const create = useMutation({
     mutationFn: (input: NewHabit) => habitsRepo.create(input),
-    onSuccess: () => {
+    onSuccess: (_data, input) => {
       invalidateHabits()
       toast.success('Habit created')
+      pendo.track('habit_created', {
+        cadence: input.cadence ?? 'daily',
+        target_count: input.target_count ?? 1,
+        has_area: input.area_id != null,
+        color: input.color ?? '',
+      })
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : 'Could not create habit'),
   })
@@ -49,11 +56,29 @@ export function useHabitMutations() {
   })
 
   const toggle = useMutation({
-    mutationFn: async ({ habitId, date, done }: { habitId: string; date: string; done: boolean }) => {
+    mutationFn: async ({
+      habitId,
+      date,
+      done,
+    }: {
+      habitId: string
+      date: string
+      done: boolean
+    }) => {
       if (done) await habitsRepo.logCompletion(habitId, date)
       else await habitsRepo.clearCompletion(habitId, date)
     },
-    onSuccess: invalidateLogs,
+    onSuccess: (_data, variables) => {
+      invalidateLogs()
+      if (variables.done) {
+        pendo.track('habit_completion_logged', {
+          habit_id: variables.habitId,
+          date: variables.date,
+          done: variables.done,
+          is_today: variables.date === todayISO(),
+        })
+      }
+    },
     onError: (e) => toast.error(e instanceof Error ? e.message : 'Could not update log'),
   })
 

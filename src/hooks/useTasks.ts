@@ -21,9 +21,19 @@ export function useTaskMutations() {
 
   const create = useMutation({
     mutationFn: (input: NewTask) => tasksRepo.create(input),
-    onSuccess: () => {
+    onSuccess: (_data, input) => {
       invalidate()
       toast.success('Task added')
+      pendo.track('task_created', {
+        priority: input.priority ?? 'medium',
+        has_due_date: input.due_date != null,
+        has_area: input.area_id != null,
+        has_goal: input.goal_id != null,
+        has_sprint: input.sprint_id != null,
+        has_recurrence: input.recurrence != null,
+        recurrence_freq: input.recurrence?.freq ?? null,
+        tag_count: input.tags?.length ?? 0,
+      })
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : 'Could not add task'),
   })
@@ -37,7 +47,18 @@ export function useTaskMutations() {
   const setStatus = useMutation({
     mutationFn: ({ id, status }: { id: string; status: TaskStatus }) =>
       tasksRepo.setStatus(id, status),
-    onSuccess: invalidate,
+    onSuccess: (data, variables) => {
+      invalidate()
+      if (variables.status === 'done') {
+        pendo.track('task_completed', {
+          task_id: variables.id,
+          priority: data.priority,
+          has_area: data.area_id != null,
+          has_goal: data.goal_id != null,
+          has_sprint: data.sprint_id != null,
+        })
+      }
+    },
     onError: (e) => toast.error(e instanceof Error ? e.message : 'Could not update task'),
   })
 

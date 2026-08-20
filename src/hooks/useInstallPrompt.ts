@@ -23,6 +23,7 @@ export function useInstallPrompt() {
     const onInstalled = () => {
       setInstalled(true)
       setDeferred(null)
+      pendo.track('pwa_installed')
     }
     window.addEventListener('beforeinstallprompt', onPrompt)
     window.addEventListener('appinstalled', onInstalled)
