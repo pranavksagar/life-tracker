@@ -123,13 +123,20 @@ export function TaskDialog({
       <DialogContent className="max-h-[90svh] overflow-y-auto sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{isEdit ? 'Edit task' : 'New task'}</DialogTitle>
-          <DialogDescription>{isEdit ? 'Update the details.' : 'Add something to do.'}</DialogDescription>
+          <DialogDescription>
+            {isEdit ? 'Update the details.' : 'Add something to do.'}
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="title">Title</Label>
-            <Input id="title" autoFocus placeholder="What needs doing?" {...register('title', { required: true })} />
+            <Input
+              id="title"
+              autoFocus
+              placeholder="What needs doing?"
+              {...register('title', { required: true })}
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -211,7 +218,9 @@ export function TaskDialog({
               <Controller
                 control={control}
                 name="sprint_id"
-                render={({ field }) => <SprintSelect value={field.value} onChange={field.onChange} />}
+                render={({ field }) => (
+                  <SprintSelect value={field.value} onChange={field.onChange} />
+                )}
               />
             </div>
           </div>

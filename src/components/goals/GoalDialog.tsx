@@ -130,21 +130,41 @@ export function GoalDialog({
           <div className="grid grid-cols-3 gap-2">
             <div className="space-y-1.5">
               <Label htmlFor="goal-current">Current</Label>
-              <Input id="goal-current" type="number" value={current} onChange={(e) => setCurrent(e.target.value)} />
+              <Input
+                id="goal-current"
+                type="number"
+                value={current}
+                onChange={(e) => setCurrent(e.target.value)}
+              />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="goal-target">Target</Label>
-              <Input id="goal-target" type="number" value={target} onChange={(e) => setTarget(e.target.value)} />
+              <Input
+                id="goal-target"
+                type="number"
+                value={target}
+                onChange={(e) => setTarget(e.target.value)}
+              />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="goal-unit">Unit</Label>
-              <Input id="goal-unit" value={unit} onChange={(e) => setUnit(e.target.value)} placeholder="books" />
+              <Input
+                id="goal-unit"
+                value={unit}
+                onChange={(e) => setUnit(e.target.value)}
+                placeholder="books"
+              />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="goal-deadline">Deadline</Label>
-              <Input id="goal-deadline" type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} />
+              <Input
+                id="goal-deadline"
+                type="date"
+                value={deadline}
+                onChange={(e) => setDeadline(e.target.value)}
+              />
             </div>
             <div className="space-y-1.5">
               <Label>Status</Label>

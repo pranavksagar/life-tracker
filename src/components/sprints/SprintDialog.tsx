@@ -108,14 +108,26 @@ export function SprintDialog({
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="sprint-start">Start</Label>
-              <Input id="sprint-start" type="date" value={start} onChange={(e) => setStart(e.target.value)} />
+              <Input
+                id="sprint-start"
+                type="date"
+                value={start}
+                onChange={(e) => setStart(e.target.value)}
+              />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="sprint-end">End</Label>
-              <Input id="sprint-end" type="date" value={end} onChange={(e) => setEnd(e.target.value)} />
+              <Input
+                id="sprint-end"
+                type="date"
+                value={end}
+                onChange={(e) => setEnd(e.target.value)}
+              />
             </div>
           </div>
-          {end < start && <p className="text-destructive text-xs">End date must be after the start.</p>}
+          {end < start && (
+            <p className="text-destructive text-xs">End date must be after the start.</p>
+          )}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="sprint-cap">Capacity (points)</Label>

@@ -50,7 +50,15 @@ export function useHabitMutations() {
   })
 
   const toggle = useMutation({
-    mutationFn: async ({ habitId, date, done }: { habitId: string; date: string; done: boolean }) => {
+    mutationFn: async ({
+      habitId,
+      date,
+      done,
+    }: {
+      habitId: string
+      date: string
+      done: boolean
+    }) => {
       if (done) await habitsRepo.logCompletion(habitId, date)
       else await habitsRepo.clearCompletion(habitId, date)
     },

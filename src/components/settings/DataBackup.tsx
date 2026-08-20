@@ -70,7 +70,11 @@ export function DataBackup() {
       </p>
       <div className="flex flex-wrap gap-2">
         <Button variant="outline" onClick={handleExport} disabled={exporting}>
-          {exporting ? <Loader2 className="size-4 animate-spin" /> : <Download className="size-4" />}
+          {exporting ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <Download className="size-4" />
+          )}
           Export data
         </Button>
         <Button variant="outline" onClick={() => fileRef.current?.click()} disabled={importing}>

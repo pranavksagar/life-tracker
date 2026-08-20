@@ -111,7 +111,12 @@ export function ExerciseDialog({
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="ex-date">Date</Label>
-              <Input id="ex-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+              <Input
+                id="ex-date"
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+              />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="ex-dur">Duration (min)</Label>
@@ -155,7 +160,12 @@ export function ExerciseDialog({
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="ex-notes">Notes</Label>
-            <Textarea id="ex-notes" rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />
+            <Textarea
+              id="ex-notes"
+              rows={2}
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+            />
           </div>
         </div>
         <DialogFooter>

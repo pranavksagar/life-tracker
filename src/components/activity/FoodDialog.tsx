@@ -124,7 +124,12 @@ export function FoodDialog({
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="food-date">Date</Label>
-              <Input id="food-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+              <Input
+                id="food-date"
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+              />
             </div>
           </div>
           <div className="space-y-1.5">
@@ -152,7 +157,12 @@ export function FoodDialog({
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="food-notes">Notes</Label>
-            <Textarea id="food-notes" rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />
+            <Textarea
+              id="food-notes"
+              rows={2}
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+            />
           </div>
         </div>
         <DialogFooter>
@@ -185,7 +195,13 @@ function NumField({
       <Label htmlFor={id} className="text-muted-foreground text-[11px]">
         {label}
       </Label>
-      <Input id={id} type="number" min={0} value={value} onChange={(e) => onChange(e.target.value)} />
+      <Input
+        id={id}
+        type="number"
+        min={0}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      />
     </div>
   )
 }
