@@ -94,8 +94,24 @@ export function TaskDialog({
     }
 
     try {
-      if (task) await update.mutateAsync({ id: task.id, patch: payload })
-      else await create.mutateAsync(payload)
+      if (task) {
+        await update.mutateAsync({ id: task.id, patch: payload })
+      } else {
+        await create.mutateAsync(payload)
+        if (typeof pendo !== 'undefined') {
+          pendo.track('task_created', {
+            priority: values.priority,
+            status: values.status,
+            has_due_date: Boolean(values.due_date),
+            has_area: values.area_id !== null,
+            has_goal: values.goal_id !== null,
+            has_sprint: values.sprint_id !== null,
+            has_recurrence: values.recurrenceFreq !== 'none',
+            tag_count: parseTags(values.tagsText).length,
+            source: 'task_dialog',
+          })
+        }
+      }
       onOpenChange(false)
     } catch {
       // mutation hooks surface the toast

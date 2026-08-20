@@ -62,7 +62,20 @@ export function GoalCard({ goal, tasks, habits }: { goal: Goal; tasks: Task[]; h
               <DropdownMenuItem onClick={() => setEditing(true)}>Edit</DropdownMenuItem>
               {goal.status !== 'completed' && (
                 <DropdownMenuItem
-                  onClick={() => update.mutate({ id: goal.id, patch: { status: 'completed' } })}
+                  onClick={() => {
+                    update.mutate({ id: goal.id, patch: { status: 'completed' } })
+                    if (typeof pendo !== 'undefined') {
+                      pendo.track('goal_completed', {
+                        had_metric: Boolean(goal.metric_name),
+                        had_deadline: Boolean(goal.deadline),
+                        had_area: goal.area_id !== null,
+                        had_sprint: goal.sprint_id !== null,
+                        progress_percent: percent,
+                        linked_task_count: tasks.length,
+                        linked_habit_count: habits.length,
+                      })
+                    }
+                  }}
                 >
                   Mark complete
                 </DropdownMenuItem>

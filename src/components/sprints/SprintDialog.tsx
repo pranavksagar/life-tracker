@@ -62,8 +62,24 @@ export function SprintDialog({
       status,
     }
     try {
-      if (sprint) await update.mutateAsync({ id: sprint.id, patch: payload })
-      else await create.mutateAsync(payload)
+      if (sprint) {
+        await update.mutateAsync({ id: sprint.id, patch: payload })
+      } else {
+        await create.mutateAsync(payload)
+        const startDate = new Date(start)
+        const endDate = new Date(end)
+        const durationDays = Math.round(
+          (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24),
+        )
+        if (typeof pendo !== 'undefined') {
+          pendo.track('sprint_created', {
+            duration_days: durationDays,
+            has_capacity: capacity.trim() !== '',
+            capacity: optInt(capacity),
+            status,
+          })
+        }
+      }
       onOpenChange(false)
     } catch {
       /* toast handled in hook */

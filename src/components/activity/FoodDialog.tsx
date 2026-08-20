@@ -77,8 +77,21 @@ export function FoodDialog({
       notes: notes.trim() || null,
     }
     try {
-      if (entry) await update.mutateAsync({ id: entry.id, patch: payload })
-      else await create.mutateAsync(payload)
+      if (entry) {
+        await update.mutateAsync({ id: entry.id, patch: payload })
+      } else {
+        await create.mutateAsync(payload)
+        if (typeof pendo !== 'undefined') {
+          pendo.track('meal_logged', {
+            meal,
+            has_calories: calories.trim() !== '',
+            has_protein: protein.trim() !== '',
+            has_carbs: carbs.trim() !== '',
+            has_fat: fat.trim() !== '',
+            has_area: areaId !== null,
+          })
+        }
+      }
       onOpenChange(false)
     } catch {
       /* toast handled in hook */

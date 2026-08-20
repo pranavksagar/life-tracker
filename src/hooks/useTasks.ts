@@ -37,7 +37,12 @@ export function useTaskMutations() {
   const setStatus = useMutation({
     mutationFn: ({ id, status }: { id: string; status: TaskStatus }) =>
       tasksRepo.setStatus(id, status),
-    onSuccess: invalidate,
+    onSuccess: (_data, variables) => {
+      invalidate()
+      if (variables.status === 'done' && typeof pendo !== 'undefined') {
+        pendo.track('task_completed')
+      }
+    },
     onError: (e) => toast.error(e instanceof Error ? e.message : 'Could not update task'),
   })
 

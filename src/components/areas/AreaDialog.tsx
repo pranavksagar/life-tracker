@@ -47,6 +47,11 @@ export function AreaDialog({
         await update.mutateAsync({ id: area.id, patch: { name: trimmed, color } })
       } else {
         await create.mutateAsync({ name: trimmed, color })
+        if (typeof pendo !== 'undefined') {
+          pendo.track('area_created', {
+            color,
+          })
+        }
       }
       onOpenChange(false)
     } catch {

@@ -69,8 +69,20 @@ export function ExerciseDialog({
       notes: notes.trim() || null,
     }
     try {
-      if (entry) await update.mutateAsync({ id: entry.id, patch: payload })
-      else await create.mutateAsync(payload)
+      if (entry) {
+        await update.mutateAsync({ id: entry.id, patch: payload })
+      } else {
+        await create.mutateAsync(payload)
+        if (typeof pendo !== 'undefined') {
+          pendo.track('exercise_logged', {
+            exercise_type: type.trim(),
+            duration_min: optInt(duration) ?? 0,
+            intensity,
+            has_calories: calories.trim() !== '',
+            has_area: areaId !== null,
+          })
+        }
+      }
       onOpenChange(false)
     } catch {
       /* toast handled in hook */

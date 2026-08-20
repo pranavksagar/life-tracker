@@ -78,8 +78,21 @@ export function GoalDialog({
       sprint_id: sprintId,
     }
     try {
-      if (goal) await update.mutateAsync({ id: goal.id, patch: payload })
-      else await create.mutateAsync(payload)
+      if (goal) {
+        await update.mutateAsync({ id: goal.id, patch: payload })
+      } else {
+        await create.mutateAsync(payload)
+        if (typeof pendo !== 'undefined') {
+          pendo.track('goal_created', {
+            has_metric: Boolean(metricName.trim()),
+            has_target_value: target.trim() !== '' && !Number.isNaN(Number(target)),
+            has_deadline: Boolean(deadline),
+            has_area: areaId !== null,
+            has_sprint: sprintId !== null,
+            status,
+          })
+        }
+      }
       onOpenChange(false)
     } catch {
       /* toast handled in hook */

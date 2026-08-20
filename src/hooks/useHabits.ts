@@ -3,6 +3,7 @@ import { toast } from 'sonner'
 import { habitsRepo } from '@/data'
 import type { HabitPatch, NewHabit } from '@/data'
 import { qk, qkRoots } from '@/lib/query-keys'
+import { todayISO } from '@/lib/date'
 
 export function useHabits(options?: { includeArchived?: boolean }) {
   return useQuery({
@@ -53,7 +54,16 @@ export function useHabitMutations() {
       if (done) await habitsRepo.logCompletion(habitId, date)
       else await habitsRepo.clearCompletion(habitId, date)
     },
-    onSuccess: invalidateLogs,
+    onSuccess: (_data, variables) => {
+      invalidateLogs()
+      if (variables.done && typeof pendo !== 'undefined') {
+        pendo.track('habit_completion_logged', {
+          habit_id: variables.habitId,
+          date: variables.date,
+          is_today: variables.date === todayISO(),
+        })
+      }
+    },
     onError: (e) => toast.error(e instanceof Error ? e.message : 'Could not update log'),
   })
 

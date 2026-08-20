@@ -62,8 +62,18 @@ export function HabitDialog({
       color,
     }
     try {
-      if (habit) await update.mutateAsync({ id: habit.id, patch: payload })
-      else await create.mutateAsync(payload)
+      if (habit) {
+        await update.mutateAsync({ id: habit.id, patch: payload })
+      } else {
+        await create.mutateAsync(payload)
+        if (typeof pendo !== 'undefined') {
+          pendo.track('habit_created', {
+            cadence,
+            target_count: Math.max(1, target),
+            has_area: areaId !== null,
+          })
+        }
+      }
       onOpenChange(false)
     } catch {
       /* toast handled in hook */

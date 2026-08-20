@@ -23,6 +23,11 @@ export function DataBackup() {
       a.download = `life-tracker-backup-${todayISO()}.json`
       a.click()
       URL.revokeObjectURL(url)
+      if (typeof pendo !== 'undefined') {
+        pendo.track('data_exported', {
+          file_size_bytes: blob.size,
+        })
+      }
       toast.success('Backup downloaded')
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Export failed')
@@ -38,6 +43,16 @@ export function DataBackup() {
       const parsed = JSON.parse(text) as BackupFile
       await importAll(parsed)
       await queryClient.invalidateQueries()
+      if (typeof pendo !== 'undefined') {
+        pendo.track('data_imported', {
+          file_size_bytes: file.size,
+          areas_count: parsed.data?.areas?.length ?? 0,
+          tasks_count: parsed.data?.tasks?.length ?? 0,
+          habits_count: parsed.data?.habits?.length ?? 0,
+          goals_count: parsed.data?.goals?.length ?? 0,
+          sprints_count: parsed.data?.sprints?.length ?? 0,
+        })
+      }
       toast.success('Backup imported')
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Import failed — is this a valid backup file?')
