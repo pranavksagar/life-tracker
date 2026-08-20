@@ -17,9 +17,16 @@ export function useGoalMutations() {
 
   const create = useMutation({
     mutationFn: (input: NewGoal) => goalsRepo.create(input),
-    onSuccess: () => {
+    onSuccess: (data) => {
       invalidate()
       toast.success('Goal created')
+      pendo.track('goal_created', {
+        has_target_value: data.target_value != null,
+        has_deadline: data.deadline != null,
+        has_area: data.area_id != null,
+        has_sprint: data.sprint_id != null,
+        status: data.status,
+      })
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : 'Could not create goal'),
   })

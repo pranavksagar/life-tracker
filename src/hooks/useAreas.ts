@@ -23,9 +23,13 @@ export function useAreaMutations() {
 
   const create = useMutation({
     mutationFn: (input: NewArea) => areasRepo.create(input),
-    onSuccess: () => {
+    onSuccess: (data) => {
       invalidate()
       toast.success('Area created')
+      pendo.track('area_created', {
+        area_name: data.name,
+        color: data.color,
+      })
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : 'Could not create area'),
   })
